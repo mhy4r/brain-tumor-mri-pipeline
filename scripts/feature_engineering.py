@@ -65,8 +65,22 @@ def run_feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
         print("[FE] Descriptions empty — TF-IDF skipped.")
 
     # 6. Null check after engineering
-    null_counts = df[['tumor_idx','weight_idx','lesion_offset']].isnull().sum()
-    print(f"[FE] Null check on key features:\n{null_counts.to_string()}")
+    key_cols = ['tumor_idx', 'weight_idx', 'lesion_offset']
+    
+    loc_cols = [c for c in df.columns if c.startswith('loc_')]
+    check_cols = key_cols + loc_cols
+
+    null_counts = df[check_cols].isnull().sum()
+    null_counts_filtered = null_counts[null_counts > 0]
+    
+    print("\n[FE] Checking location features...")
+    print(f"[FE] Total location feature metrics tracked: {len(loc_cols)}")
+    if len(loc_cols) > 0:
+        # Log top active location stats to verify distribution
+        active_counts = df[loc_cols].sum().sort_values(ascending=False)
+        print(f"[FE] Top 3 most frequent tumor locations:\n{active_counts.head(3).to_string()}")
+    
+    print(f"[FE] Null check on key features and location flags:\n{null_counts_filtered.to_string() if len(null_counts_filtered) else '  All clear! No nulls found.'}")
 
     out = 'processed_features.csv'
     df.to_csv(out, index=False)
@@ -80,3 +94,10 @@ if __name__ == '__main__':
     print(df[['tumor_type','tumor_idx','weighting','weight_idx',
               'lesion_offset_norm','is_central','is_normal']].head())
     print(df.columns.to_list())
+    print("="*60)
+
+    loc_preview = [c for c in df.columns if c.startswith('loc_')][:4]
+    print("\n=== PIPELINE VERIFICATION PREVIEW ===")
+    preview_cols = ['tumor_type', 'tumor_idx', 'weighting', 'weight_idx', 'lesion_offset_norm', 'is_central'] + loc_preview
+    print(df[preview_cols].head())
+    print(f"\nTotal structural columns in final tensor: {len(df.columns)}")

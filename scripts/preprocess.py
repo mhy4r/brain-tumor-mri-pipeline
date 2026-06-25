@@ -22,6 +22,20 @@ def preprocess(df: pd.DataFrame) -> pd.DataFrame:
     df['description'] = df['description'].fillna('')
     print("[PREP] Filled missing descriptions with empty string.")
 
+    if 'tumor_locations' in df.columns:
+        # Fill missing NaN location tags with a dedicated category string
+        df['tumor_locations'] = df['tumor_locations'].fillna('Unspecified')
+        print("[PREP] Filled missing tumor_locations with 'Unspecified'.")
+
+        # Extract multi-hot encoded binary metrics
+        location_dummies = df['tumor_locations'].str.get_dummies(sep=', ')
+        location_dummies.columns = location_dummies.columns.str.replace(' ', '_')
+        location_dummies = location_dummies.add_prefix('loc_')
+        
+        # Combine the original dataframe with the new location features
+        df = pd.concat([df, location_dummies], axis=1)
+        print(f"[PREP] Multi-hot encoded locations into features: {list(location_dummies.columns)}")
+
     # 2. Invalid labels
     bad_tumor  = ~df['tumor_type'].isin(VALID_TUMORS)
     bad_weight = ~df['weighting'].isin(VALID_WEIGHTS)

@@ -5,3 +5,5 @@ preprocessed_data.csv
 __pycache__/
 scripts/__pycache__/
 verify_db.py
+eda.py
+eda_output/

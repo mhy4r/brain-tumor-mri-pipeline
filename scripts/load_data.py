@@ -10,21 +10,33 @@ def load_data() -> pd.DataFrame:
 
     # Join all tables into one flat DataFrame — same shape your notebook expects
     query = """
-        SELECT
-            i.id,
-            i.file_name,
-            i.width,
-            i.height,
-            i.x          AS point_x,
-            i.y          AS point_y,
-            i.description,
-            t.type_name  AS tumor_type,
-            g.grade      AS weighting,
-            (t.type_name || ' ' || g.grade) AS class
-        FROM images i
-        JOIN tumor_types  t ON i.type_id  = t.id
-        JOIN tumor_grades g ON i.grade_id = g.id
+    SELECT 
+        i.id, 
+        i.file_name, 
+        i.width, 
+        i.height, 
+        i.x AS point_x, 
+        i.y AS point_y, 
+        i.description, 
+        t.type_name AS tumor_type, 
+        g.grade AS weighting, 
+        (t.type_name || ' ' || g.grade) AS class,
+        
+        -- Aggregates multiple location tags into a single text string
+        GROUP_CONCAT(l.location_name, ', ') AS tumor_locations
+
+    FROM images i
+    JOIN tumor_types t ON i.type_id = t.id
+    JOIN tumor_grades g ON i.grade_id = g.id
+    
+    -- LEFT JOIN keeps records even if meta["location"] was empty/omitted
+    LEFT JOIN image_locations il ON i.id = il.image_id
+    LEFT JOIN locations l ON il.location_id = l.id
+    
+    -- Groups your rows so you get exactly ONE clean sample row per image matrix
+    GROUP BY i.id
     """
+    
     df = pd.read_sql_query(query, con)
     con.close()
 
