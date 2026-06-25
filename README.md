@@ -7,6 +7,8 @@ from MRI scans. Built with PyTorch, SQLite, and GitHub Actions CI/CD.
 
 ## Dataset
 
+This dataset is distributed under the **Apache License 2.0**
+
 This project uses the [Brain Tumor MRI Images — 30 Classes](https://www.kaggle.com/datasets/fernando2rad/brain-tumor-mri-images-30-classes) dataset from Kaggle.
 
 - 11,300 MRI images at 512×512 pixels
@@ -14,7 +16,7 @@ This project uses the [Brain Tumor MRI Images — 30 Classes](https://www.kaggle
 - 3 MRI weightings: T1, T1C+, T2
 - Each image includes lesion center coordinates (x, y) in metadata
 
-The dataset is **not included** in this repository due to size and licensing.
+The dataset is **not included** in this repository due to size.
 
 **To download via Kaggle API:**
 ```bash
