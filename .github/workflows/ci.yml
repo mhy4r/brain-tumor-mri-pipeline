@@ -25,7 +25,7 @@ jobs:
           python - <<'EOF'
           import sqlite3, os
           os.makedirs('database', exist_ok=True)
-          con = sqlite3.connect('database/brain_tumor_db.sqlite')
+          con = sqlite3.connect('database/mock_brain_tumor_db.sqlite')
           cur = con.cursor()
           cur.executescript("""
             CREATE TABLE IF NOT EXISTS tumor_types (
