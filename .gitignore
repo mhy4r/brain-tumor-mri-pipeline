@@ -1,5 +1,5 @@
 # .gitignore
-# brain_tumor_db.sqlite
+brain_tumor_db.sqlite
 processed_features.csv
 preprocessed_data.csv
 __pycache__/
