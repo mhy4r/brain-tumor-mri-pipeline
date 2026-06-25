@@ -2,7 +2,8 @@
 import subprocess, sys, os
 
 # Make sure DB exists before running pipeline
-DB_PATH = 'brain_tumor_db.sqlite'
+DB_PATH = os.path.join('database', 'brain_tumor_db.sqlite')
+# DB_PATH = 'brain_tumor_db.sqlite'
 if not os.path.exists(DB_PATH):
     print(f"[PIPELINE] DB not found at {DB_PATH}")
     print("[PIPELINE] Run: python scripts/build_database.py  first")
