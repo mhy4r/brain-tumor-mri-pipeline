@@ -23,10 +23,8 @@ jobs:
       - name: Create minimal test DB for CI
         run: |
           python - <<'EOF'
-          import sqlite3, json, os
-
-          # Create a minimal synthetic DB so pipeline.py can run in CI
-          # without the actual 11k image dataset
+          import sqlite3, os
+          os.makedirs('database', exist_ok=True)
           con = sqlite3.connect('database/brain_tumor_db.sqlite')
           cur = con.cursor()
           cur.executescript("""
@@ -56,11 +54,15 @@ jobs:
               image_id INTEGER, location_id INTEGER,
               PRIMARY KEY (image_id, location_id)
             );
-            INSERT INTO tumor_types (type_name) VALUES ('Glioma'),('Normal');
+            INSERT INTO tumor_types (type_name) VALUES
+              ('Glioma'),('Normal'),('Astrocytoma'),('Meningioma');
             INSERT INTO tumor_grades (grade) VALUES ('T1'),('T2'),('T1C+');
             INSERT INTO images (file_name,width,height,x,y,description,type_id,grade_id)
-              VALUES ('test_001.jpg',512,512,256,256,'test glioma',1,1),
-                     ('test_002.jpg',512,512,256,256,'normal scan',2,2);
+              VALUES
+              ('test_001.jpg',512,512,256,256,'test glioma',1,1),
+              ('test_002.jpg',512,512,256,256,'normal scan',2,2),
+              ('test_003.jpg',512,512,200,300,'astrocytoma case',3,3),
+              ('test_004.jpg',512,512,100,400,'meningioma case',4,2);
           """)
           con.commit()
           con.close()
