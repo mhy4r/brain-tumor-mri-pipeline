@@ -5,7 +5,7 @@ import os
 # =========================
 # 1. CONFIG
 # =========================
-DB_NAME = "brain_tumor_db.sqlite"
+DB_NAME = os.path.join(os.path.dirname(__file__), '..', 'database','brain_tumor_db.sqlite')
 JSON_PATH = os.path.join(os.path.dirname(__file__), '..', 'DATA.json')
 
 # =========================
