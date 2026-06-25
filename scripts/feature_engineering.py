@@ -79,3 +79,4 @@ if __name__ == '__main__':
     df = run_feature_engineering(df)
     print(df[['tumor_type','tumor_idx','weighting','weight_idx',
               'lesion_offset_norm','is_central','is_normal']].head())
+    print(df.columns.to_list())
