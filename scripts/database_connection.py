@@ -2,7 +2,7 @@
 import sqlite3
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'brain_tumor_db.sqlite')
+DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database','brain_tumor_db.sqlite')
 
 def get_connection():
     con = sqlite3.connect(DB_PATH)
