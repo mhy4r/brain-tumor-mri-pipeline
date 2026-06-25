@@ -1,0 +1,71 @@
+# .github/workflows/ci.yml
+name: Data Pipeline CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pipeline-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create minimal test DB for CI
+        run: |
+          python - <<'EOF'
+          import sqlite3, json, os
+
+          # Create a minimal synthetic DB so pipeline.py can run in CI
+          # without the actual 11k image dataset
+          con = sqlite3.connect('database/brain_tumor_db.sqlite')
+          cur = con.cursor()
+          cur.executescript("""
+            CREATE TABLE IF NOT EXISTS tumor_types (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              type_name TEXT UNIQUE NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS tumor_grades (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              grade TEXT UNIQUE NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS images (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              file_name TEXT NOT NULL,
+              width INTEGER, height INTEGER,
+              x INTEGER, y INTEGER,
+              description TEXT,
+              type_id INTEGER, grade_id INTEGER,
+              FOREIGN KEY (type_id) REFERENCES tumor_types(id),
+              FOREIGN KEY (grade_id) REFERENCES tumor_grades(id)
+            );
+            CREATE TABLE IF NOT EXISTS locations (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              location_name TEXT UNIQUE NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS image_locations (
+              image_id INTEGER, location_id INTEGER,
+              PRIMARY KEY (image_id, location_id)
+            );
+            INSERT INTO tumor_types (type_name) VALUES ('Glioma'),('Normal');
+            INSERT INTO tumor_grades (grade) VALUES ('T1'),('T2'),('T1C+');
+            INSERT INTO images (file_name,width,height,x,y,description,type_id,grade_id)
+              VALUES ('test_001.jpg',512,512,256,256,'test glioma',1,1),
+                     ('test_002.jpg',512,512,256,256,'normal scan',2,2);
+          """)
+          con.commit()
+          con.close()
+          print("CI: Minimal test DB created at database/brain_tumor_db.sqlite")
+          EOF
+
+      - name: Run pipeline
+        run: python pipeline.py
